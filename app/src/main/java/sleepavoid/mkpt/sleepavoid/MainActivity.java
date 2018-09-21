@@ -7,6 +7,7 @@ import android.content.pm.ResolveInfo;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
@@ -16,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -51,8 +53,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-//        Log.i(TAG, "AAAAAAAA---------------------------- ");
-
         AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume_level, 0);
 
@@ -82,13 +82,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 textView.setText("ERRPR CODE");
                 Toast.makeText(getApplicationContext(), "Timeout Please wakeup!",Toast.LENGTH_SHORT).show();
             }
-
-
-
-
-
-//            wordsList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
-//                    matches));
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -153,7 +146,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         speak(QuestioinManager.getQuestion());
     }
 
-
     public void speak(String str){
 
         if (handler != null && callBack != null) {
@@ -180,17 +172,19 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         super.onDestroy();
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         mTextMessage = (TextView) findViewById(R.id.message);
-     //   BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-      //  navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
         startServices();
+
+    // PowerManager mgr = (PowerManager)getApplicationContext().getSystemService(Context.POWER_SERVICE);
+     //   PowerManager.WakeLock wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"MyWakeLock");
+        //wakeLock.acquire();
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
