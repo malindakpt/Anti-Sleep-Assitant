@@ -101,9 +101,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         QuestioinManager.loadQues();
 
         mainActivity = this;
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity);
-
         this.qID = getIntent().getIntExtra("qID",0);
 
         params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,"stringId");
@@ -185,6 +182,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         //wakeLock.acquire();
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        WebService webService = new WebService(this);
+        webService.sendRequest();
     }
 
     @Override
