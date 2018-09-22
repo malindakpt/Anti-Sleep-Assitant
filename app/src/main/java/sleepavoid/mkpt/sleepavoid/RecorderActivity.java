@@ -43,7 +43,7 @@ public class RecorderActivity implements RecognitionListener {
 
     public void startServices(){
         startListening();
-        startTimeout();
+      //  startTimeout();
     }
 
     private void stopTimeout() {
@@ -107,8 +107,8 @@ public class RecorderActivity implements RecognitionListener {
     public void onError(int errorCode) {
         String errorMessage = getErrorText(errorCode);
         Log.e(LOG_TAG, "FAILED " + errorMessage);
-        Toast.makeText(mainActivity.getApplicationContext(), "FAILED", Toast.LENGTH_SHORT).show();
-        startListening();
+        mainActivity.onSleepPersonDitected();
+        //startListening();
     }
 
     @Override

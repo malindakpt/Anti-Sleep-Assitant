@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         mainActivity = this;
         recorderActivity = new RecorderActivity(this);
         startServices();
-       // recorderActivity.startServices();
     }
     @Override
     public void onInit(int status) {
@@ -65,14 +64,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 @Override
                 public void onDone(String utteranceId) {
                     if(isNeedToListen && isRun) {
-
-                        //mainActivity.startVoiceRecognitionActivity();
-
-
-                       // View v = findViewById(R.id.main_layout); //fetch a View: any one will do
-
                         View v = getWindow().getDecorView().getRootView();
-
                         v.post(new Runnable(){ public void run(){
                             recorderActivity.startServices();
                         }});
@@ -145,8 +137,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 }
             }, 5000);
         }else{
-            textView.setText("ERRPR CODE");
-            Toast.makeText(getApplicationContext(), "Timeout Please wakeup!",Toast.LENGTH_SHORT).show();
+            textView.setText("No words identified");
+            onSleepPersonDitected();
         }
     }
 
@@ -156,6 +148,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 //        startActivityForResult(intent,REQUEST_CODE);
 //        Log.i(TAG, "Listner opened");
 //    }
+
+    public void onSleepPersonDitected(){
+        Toast.makeText(getApplicationContext(), "Sleeping person.. Please wakeup!",Toast.LENGTH_SHORT).show();
+    }
 
     private void startServices(){
         btnStart = (Button) findViewById(R.id.btnStart);
