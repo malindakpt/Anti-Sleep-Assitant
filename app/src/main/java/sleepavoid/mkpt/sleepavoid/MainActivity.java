@@ -44,22 +44,59 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     Runnable callBack = null;
     private boolean isAnswered = false;
     private String TAG = "Night Driving : ";
-    int volume_level;
     private static final int REQUEST_CODE = 1234;
 
-    /**
-     * Handle the results from the voice recognition activity.
-     */
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        mTextMessage = (TextView) findViewById(R.id.message);
+        startServices();
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        WebService webService = new WebService(this);
+        webService.sendRequest();
+    }
+    @Override
+    public void onInit(int status) {
+        if (status == TextToSpeech.SUCCESS) {
+            tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                @Override
+                public void onStart(String utteranceId) {
+                    Log.e("TTS", "On start");
+                }
+                @Override
+                public void onDone(String utteranceId) {
+                    if(isNeedToListen && isRun) {
+                        mainActivity.startVoiceRecognitionActivity();
+                    }
+                }
+                @Override
+                public void onError(String utteranceId) {
+                    Log.e("TTS", "This Language is not supported");
+                }
+            });
+            int result = tts.setLanguage(Locale.US);
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("TTS", "New This Language is not supported New");
+                Intent installIntent = new Intent();
+                installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+                startActivity(installIntent);
+                this.finish();
+                System.exit(0);
+            } else {
+                btnStart.setEnabled(true);
+            }
+        } else {
+            Log.e("TTS", "Initilization Failed!");
+        }
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK)
-        {
-
+        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
             // Populate the wordsList with the String values the recognition engine thought it heard
             final ArrayList<String> matches = data.getStringArrayListExtra(
                     RecognizerIntent.EXTRA_RESULTS);
-
             Log.i(TAG, "Got a answer : " +matches);
             if(matches.size()>0) {
                 textView.setText(matches.get(0));
@@ -162,65 +199,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         super.onDestroy();
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        mTextMessage = (TextView) findViewById(R.id.message);
-        startServices();
-
-    // PowerManager mgr = (PowerManager)getApplicationContext().getSystemService(Context.POWER_SERVICE);
-     //   PowerManager.WakeLock wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"MyWakeLock");
-        //wakeLock.acquire();
-
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-        WebService webService = new WebService(this);
-        webService.sendRequest();
-    }
-
-    @Override
-    public void onInit(int status) {
-        if (status == TextToSpeech.SUCCESS) {
-
-            tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
-                @Override
-                public void onStart(String utteranceId) {
-                    Log.e("TTS", "On start");
-
-                }
-
-                @Override
-                public void onDone(String utteranceId) {
-                    if(isNeedToListen && isRun) {
-                        mainActivity.startVoiceRecognitionActivity();
-                    }
-                }
-
-                @Override
-                public void onError(String utteranceId) {
-                    Log.e("TTS", "This Language is not supported");
-                }
-            });
-
-            int result = tts.setLanguage(Locale.US);
 
 
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                Log.e("TTS", "New This Language is not supported New");
-                Intent installIntent = new Intent();
-                installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
-                startActivity(installIntent);
-                this.finish();
-                System.exit(0);
-            } else {
-                btnStart.setEnabled(true);
-            }
 
-
-        } else {
-            Log.e("TTS", "Initilization Failed!");
-        }
-    }
 }
