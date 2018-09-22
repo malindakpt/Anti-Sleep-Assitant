@@ -30,9 +30,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements TextToSpeech.OnInitListener {
 
-    private TextView mTextMessage;
     public static MainActivity mainActivity;
-    private int qID = 0;
     private HashMap<String, String> params = new HashMap<String, String>();
     private TextToSpeech tts;
     private TextView textView;
@@ -45,16 +43,16 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     private boolean isAnswered = false;
     private String TAG = "Night Driving : ";
     private static final int REQUEST_CODE = 1234;
+    RecorderActivity recorderActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mTextMessage = (TextView) findViewById(R.id.message);
+        mainActivity = this;
+        recorderActivity = new RecorderActivity(this);
         startServices();
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        WebService webService = new WebService(this);
-        webService.sendRequest();
+       // recorderActivity.startServices();
     }
     @Override
     public void onInit(int status) {
@@ -67,7 +65,17 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 @Override
                 public void onDone(String utteranceId) {
                     if(isNeedToListen && isRun) {
-                        mainActivity.startVoiceRecognitionActivity();
+
+                        //mainActivity.startVoiceRecognitionActivity();
+
+
+                       // View v = findViewById(R.id.main_layout); //fetch a View: any one will do
+
+                        View v = getWindow().getDecorView().getRootView();
+
+                        v.post(new Runnable(){ public void run(){
+                            recorderActivity.startServices();
+                        }});
                     }
                 }
                 @Override
@@ -120,22 +128,36 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    public void startVoiceRecognitionActivity()
-    {
-        Intent intent = new Intent(this, RecorderActivity.class);
-        startActivityForResult(intent,REQUEST_CODE);
-        Log.i(TAG, "Listner opened");
+    public void onlistningComplete(ArrayList<String> matches){
+        Log.i(TAG, "Got a answer : " +matches);
+        if(matches.size()>0) {
+            textView.setText(matches.get(0));
+            isAnswered = true;
+            isNeedToListen = false;
+            speak(QuestioinManager.getAnswer());
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Log.i(TAG, "------- NEW QUESTION --------");
+                    isNeedToListen = true;
+                    speak(QuestioinManager.getQuestion());
+                }
+            }, 5000);
+        }else{
+            textView.setText("ERRPR CODE");
+            Toast.makeText(getApplicationContext(), "Timeout Please wakeup!",Toast.LENGTH_SHORT).show();
+        }
     }
 
+//    public void startVoiceRecognitionActivity()
+//    {
+//        Intent intent = new Intent(this, RecorderActivity.class);
+//        startActivityForResult(intent,REQUEST_CODE);
+//        Log.i(TAG, "Listner opened");
+//    }
+
     private void startServices(){
-        mainActivity = this;
-        this.qID = getIntent().getIntExtra("qID",0);
-
-        params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,"stringId");
-
-        tts = new TextToSpeech(this, this);
-        tts.setSpeechRate(0.65F);
-        tts.setPitch(-5);
         btnStart = (Button) findViewById(R.id.btnStart);
         btnStop = (Button) findViewById(R.id.btnStop);
         textView = (TextView) findViewById(R.id.textView);
@@ -156,15 +178,17 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             }
         });
 
-//        Disable button if no recognition service is present
-        PackageManager pm = getPackageManager();
-        List<ResolveInfo> activities = pm.queryIntentActivities(
-                new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
-        if (activities.size() == 0)
-        {
-            btnStart.setEnabled(false);
-        }
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,"stringId");
+        tts = new TextToSpeech(this, this);
+        tts.setSpeechRate(0.65F);
+        tts.setPitch(-5);
+
+        getPackageManager().queryIntentActivities(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
+
+        WebService webService = new WebService(this);
+        webService.sendRequest();
         QuestioinManager.loadQues1();
 }
 
@@ -174,19 +198,15 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     }
 
     public void speak(String str){
-
         if (handler != null && callBack != null) {
             handler.removeCallbacks(callBack);
         }
 
         if(isRun) {
             Log.i(TAG, "speak: " + str);
-
             isAnswered = false;
             tts.speak(str, TextToSpeech.QUEUE_FLUSH, params);
-
         }
-
     }
 
     @Override
