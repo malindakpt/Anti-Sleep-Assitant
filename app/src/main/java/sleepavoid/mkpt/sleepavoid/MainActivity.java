@@ -53,9 +53,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume_level, 0);
-
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK)
         {
 
@@ -88,10 +85,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
     public void startVoiceRecognitionActivity()
     {
-        AudioManager am = (AudioManager) getSystemService(AUDIO_SERVICE);
-        volume_level= am.getStreamVolume(AudioManager.STREAM_MUSIC);
-        am.setStreamVolume(AudioManager.STREAM_MUSIC, 0,0);
-
         Intent intent = new Intent(this, RecorderActivity.class);
         startActivityForResult(intent,REQUEST_CODE);
         Log.i(TAG, "Listner opened");
@@ -134,7 +127,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         {
             btnStart.setEnabled(false);
         }
-    }
+
+        QuestioinManager.loadQues1();
+}
 
     private void askQues(){
         isNeedToListen = true;

@@ -19,51 +19,34 @@ public class QuestioinManager {
     private static SharedPreferences prefs = MainActivity.mainActivity.getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
 
     public static int count = 0;
-    public static  List<String> contentQ, contentA, contentR;
+    public static  String[] contentQ;
 
     public static String getLastUpdatedTime(){
-        return prefs.getString(LAST_UPDATED_TIME, "2018-09-22 10:17:30");
+        return prefs.getString(LAST_UPDATED_TIME, "2011-01-11 11:11:11");
+    }
+
+    public static void loadQues1(){
+        contentQ = prefs.getString(Q_BOX, "Database is not updated yet. please wait: Hold on few seconds").split("#");
     }
 
     public static  void loadQues2(String res) {
-        //String res = "2018-09-22 11:25:21#How Are You:I am good persons#Whats your name:Malinda#qqqq:aaaaa#";
-        String[] arr = res.split("#");
-        prefs.edit().putString(LAST_UPDATED_TIME, arr[0]);
+        String[] resArr = res.split("#", 2);
 
-        String qBox = prefs.getString(Q_BOX, "");
-        for(int i=1; i<arr.length;i++){
-            qBox = qBox + "#" + arr[i];
-        }
-        prefs.edit().putString(Q_BOX, qBox);
+        prefs.edit().putString(LAST_UPDATED_TIME, resArr[0]).commit();
 
-
-        String[] newArr = qBox.split("#");
-
-        contentQ = new ArrayList<String>();
-        contentA = new ArrayList<String>();
-
-        for(int i=0; i<newArr.length;i++){
-            String[] phrases = newArr[i].split(":");
-            if(phrases.length==2) {
-                contentQ.add(phrases[0]);
-                contentA.add(phrases[1]);
-            }
-        }
+        contentQ = resArr[1].split("#");
+        prefs.edit().putString(Q_BOX, resArr[1]).commit();
     }
 
-
     public static String getQuestion() {
-        if(count == contentQ.size()){
+        if(count == contentQ.length){
             count = 0;
         }
-        return contentQ.get(count++);
+        return contentQ[count].split(":")[0];
     }
 
     public static String getAnswer() {
-        if(count == contentQ.size()){
-            count = 0;
-        }
-        return contentA.get(count);
+        return contentQ[count++].split(":")[1];
     }
 }
 

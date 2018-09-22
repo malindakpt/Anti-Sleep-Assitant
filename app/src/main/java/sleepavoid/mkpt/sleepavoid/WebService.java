@@ -22,7 +22,7 @@ public class WebService {
     public void sendRequest(){
 
         RequestQueue queue = Volley.newRequestQueue(mainActivity.getApplicationContext());
-        String url = "https://www.google.com/"+QuestioinManager.getLastUpdatedTime();
+        String url = "http://photographydiary.lk/qBox/get.php?updated="+QuestioinManager.getLastUpdatedTime();
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -30,17 +30,16 @@ public class WebService {
                     @Override
                     public void onResponse(String response) {
                         // Display the first 500 characters of the response string.
-                        String res = "2018-09-22 11:25:21#How Are You:I am good persons#Whats your name:Malinda#qqqq:aaaaa#";
-                        QuestioinManager.loadQues2(res);
-                        Toast.makeText(mainActivity.getApplicationContext(), "Responese came",Toast.LENGTH_SHORT).show();
+                        if(response.length()>3){
+                            QuestioinManager.loadQues2(response);
+                            Toast.makeText(mainActivity.getApplicationContext(), "Upgrading the DB...",Toast.LENGTH_SHORT).show();
+                        }
+
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(mainActivity.getApplicationContext(), "Error came",Toast.LENGTH_SHORT).show();
-                String res = "2018-09-22 11:25:21#How Are You:I am good persons#Whats your name:Malinda#qqqq:aaaaa#";
-                QuestioinManager.loadQues2(res);
-                Toast.makeText(mainActivity.getApplicationContext(), "Responese came",Toast.LENGTH_SHORT).show();
+                Toast.makeText(mainActivity.getApplicationContext(), "Error while upgrading the DB..",Toast.LENGTH_SHORT).show();
             }
         });
 
