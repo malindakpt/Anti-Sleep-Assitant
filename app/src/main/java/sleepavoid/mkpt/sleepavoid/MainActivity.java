@@ -31,7 +31,7 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity implements TextToSpeech.OnInitListener {
 
     private TextView mTextMessage;
-    public MainActivity mainActivity;
+    public static MainActivity mainActivity;
     private int qID = 0;
     private HashMap<String, String> params = new HashMap<String, String>();
     private TextToSpeech tts;
@@ -98,8 +98,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     }
 
     private void startServices(){
-        QuestioinManager.loadQues();
-
         mainActivity = this;
         this.qID = getIntent().getIntExtra("qID",0);
 
@@ -194,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                 @Override
                 public void onStart(String utteranceId) {
-                    Log.e("TTS", "This Language is not supported");
+                    Log.e("TTS", "On start");
 
                 }
 
@@ -212,12 +210,19 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             });
 
             int result = tts.setLanguage(Locale.US);
-            if (result == TextToSpeech.LANG_MISSING_DATA
-                    || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                Log.e("TTS", "This Language is not supported");
+
+
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("TTS", "New This Language is not supported New");
+                Intent installIntent = new Intent();
+                installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+                startActivity(installIntent);
+                this.finish();
+                System.exit(0);
             } else {
                 btnStart.setEnabled(true);
             }
+
 
         } else {
             Log.e("TTS", "Initilization Failed!");
