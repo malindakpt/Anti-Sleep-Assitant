@@ -15,6 +15,7 @@ public class QuestioinManager {
     private static String MY_PREFS_NAME="MY_PREFS_NAME";
     private static String LAST_UPDATED_TIME = "LAST_UPDATED_TIME";
     private static String Q_BOX = "Q_BOX";
+    public static boolean islastAskedQuestion = true;
 
     private static SharedPreferences prefs = MainActivity.mainActivity.getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
 
@@ -42,10 +43,12 @@ public class QuestioinManager {
         if(count == contentQ.length){
             count = 0;
         }
+        islastAskedQuestion = true;
         return contentQ[count].split(":")[0];
     }
 
     public static String getAnswer() {
+        islastAskedQuestion = false;
         return contentQ[count++].split(":")[1];
     }
 }
