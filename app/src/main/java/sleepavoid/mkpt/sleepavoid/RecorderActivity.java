@@ -27,7 +27,7 @@ public class RecorderActivity implements RecognitionListener {
 
     private SpeechRecognizer speech = null;
     private Intent recognizerIntent;
-    private String LOG_TAG = "Mkpt rec ";
+    private String LOG_TAG = "RecordActivity";
     private MainActivity mainActivity;
 
     public RecorderActivity(MainActivity mainActivity){
@@ -62,11 +62,12 @@ public class RecorderActivity implements RecognitionListener {
         Log.i(LOG_TAG, "onEndOfSpeech");
     }
 
+
     @Override
     public void onError(int errorCode) {
         String errorMessage = getErrorText(errorCode);
-        Log.e(LOG_TAG, "onError " + errorMessage);
-        if(errorCode != SpeechRecognizer.ERROR_NO_MATCH) {
+        Log.e(LOG_TAG, "onError: " + errorMessage);
+        if(errorCode == SpeechRecognizer.ERROR_SPEECH_TIMEOUT  || errorCode==SpeechRecognizer.ERROR_NO_MATCH) {
             mainActivity.onSleepPersonDetected();
         }
     }
@@ -96,8 +97,6 @@ public class RecorderActivity implements RecognitionListener {
 
     @Override
     public void onRmsChanged(float rmsdB) {
-       // Log.i(LOG_TAG, "onRmsChanged");
-       // progressBar.setProgress((int) rmsdB);
         mainActivity.onRMSChange((int) rmsdB);
     }
 
