@@ -44,12 +44,12 @@ public class RecorderActivity implements RecognitionListener {
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
         speech.startListening(recognizerIntent);
+        Log.i(LOG_TAG, "listening started");
     }
 
     @Override
     public void onBeginningOfSpeech() {
         Log.i(LOG_TAG, "onBeginningOfSpeech");
-       // progressBar.setMax(10);
     }
 
     @Override
@@ -67,9 +67,9 @@ public class RecorderActivity implements RecognitionListener {
     public void onError(int errorCode) {
         String errorMessage = getErrorText(errorCode);
         Log.e(LOG_TAG, "onError: " + errorMessage);
-        if(errorCode == SpeechRecognizer.ERROR_SPEECH_TIMEOUT  || errorCode==SpeechRecognizer.ERROR_NO_MATCH) {
-            mainActivity.onSleepPersonDetected();
-        }
+      //  if(errorCode == SpeechRecognizer.ERROR_SPEECH_TIMEOUT  || errorCode==SpeechRecognizer.ERROR_NO_MATCH) {
+        mainActivity.onSleepPersonDetected();
+
     }
 
     @Override
@@ -80,7 +80,6 @@ public class RecorderActivity implements RecognitionListener {
     @Override
     public void onPartialResults(Bundle arg0) {
         Log.i(LOG_TAG, "onPartialResults");
-        Toast.makeText(mainActivity.getApplicationContext(), "onPartialResults", Toast.LENGTH_SHORT).show();
     }
 
     @Override

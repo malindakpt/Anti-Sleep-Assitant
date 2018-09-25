@@ -21,11 +21,14 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements TextToSpeech.OnInitListener {
 
-    public static String LBL_ACTIVATE = "Activate Assistant";
-    public static String LBL_DECTIVATE = "Deactivate Assistant";
+    public static String LBL_ACTIVATE = "Click to Activate";
+    public static String LBL_DECTIVATE = "Click to Deactivate";
     public static String LBL_SPEAK_TO_PHONE = "Give your answer";
     public static String LBL_DISABLED = "Assitant Disabled";
-    public static String LBL_SLEEPING = "You are sleeping";
+    public static String LBL_SLEEPING = "You were sleeping";
+
+    public static final int SLEEP_TIMEOUT = 5000;
+    public static int autoQuestionFreq = 2;
 
     private MediaPlayer mediaPlayer;
     public static MainActivity mainActivity;
@@ -37,6 +40,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     private String TAG = "MainActivity";
     private RecorderActivity recorderActivity;
     private Handler mHandler = new Handler();
+
+    private boolean questionInprogress = false;
     
 
     enum DeviceStatus{
@@ -72,7 +77,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                 @Override
                 public void onStart(String utteranceId) {
-                    Log.e("TTS", "On start");
+                    questionInprogress = true;
+                    Log.e("MainActivity", "Speech started");
                 }
                 @Override
                 public void onDone(String utteranceId) {
@@ -83,8 +89,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                                 if (QuestioinManager.islastAskedQuestion) {
                                     setState(deviceStatus, UIStatus.LISTENING);
                                     recorderActivity.startListening();
+                                    Log.e("MainActivity", "speechCompleted. islastAskedQuestion true");
                                 } else {
                                     setState(deviceStatus, UIStatus.ACTIVE);
+                                    questionInprogress = false;
+                                    Log.e("MainActivity", "speechCompleted. islastAskedQuestion false");
                                 }
                             }
                         }
@@ -112,10 +121,12 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     }
 
     public void onlistningComplete(ArrayList<String> matches) {
+        questionInprogress = false;
         if(deviceStatus == DeviceStatus.RUNNING) {
             if (matches.size() > 0) {
                 asnwerDetected = true;
                 speak(QuestioinManager.getAnswer());
+                Log.e("MainActivity", "onlistningComplete. matches.size()>0 Answer given");
             } else {
                 // temporary only
                 // onSleepPersonDitected();
@@ -124,7 +135,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     }
 
     public void onSleepPersonDetected() {
+        questionInprogress = false;
         if(deviceStatus == DeviceStatus.RUNNING) {
+            Log.e("MainActivity", "Sleeping person detected");
             sleepDetected = true;
             QuestioinManager.getAnswer();
             setState(deviceStatus, UIStatus.SLEEPING);
@@ -145,9 +158,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     }
 
     private void startServices() {
-        btnMute = (ImageButton) findViewById(R.id.imageButton);
+       btnMute = (ImageButton) findViewById(R.id.imageButton);
        btnStart = (Button) findViewById(R.id.button);
-       btnStart.setText("Activate Assistant");
+       btnStart.setText(LBL_ACTIVATE);
        progressCircle = (ProgressBar) findViewById(R.id.progressBar3);
        progressLinear = (ProgressBar) findViewById(R.id.progressBar5);
        mediaPlayer= MediaPlayer.create(MainActivity.mainActivity,R.raw.alert1);
@@ -185,8 +198,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         webService.sendRequest();
         QuestioinManager.loadQues1();
     }
-
-
 
     public void setState(DeviceStatus deviceStatus, UIStatus uiStatus){
         this.deviceStatus = deviceStatus;
@@ -248,11 +259,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     }
 
     public void speak(String str) {
-        if(deviceStatus == DeviceStatus.RUNNING ){
-            Log.i(TAG, "speak: " + str);
-            tts.speak(str, TextToSpeech.QUEUE_FLUSH, params);
-        }
-
+        Log.i(TAG, "speaking: " + str);
+        tts.speak(str, TextToSpeech.QUEUE_FLUSH, params);
     }
 
     @Override
@@ -269,17 +277,17 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         @Override
         public void run() {
             try {
-                if(!sleepDetected && !asnwerDetected) {
+                if(!questionInprogress && deviceStatus == DeviceStatus.RUNNING && !sleepDetected && !asnwerDetected) {
                     setState(deviceStatus, UIStatus.ACTIVE);
                     speak(QuestioinManager.getQuestion()); //this function can change value of mInterval.
+                    Log.i(TAG, "Thread:  true" );
                 } else {
+                    Log.i(TAG, "Thread:  false" );
                     sleepDetected = false;
                     asnwerDetected = false;
                 }
             } finally {
-                // 100% guarantee that this always happens, even if
-                // your update method throws an exception
-                mHandler.postDelayed(mStatusChecker, 10000);
+                mHandler.postDelayed(mStatusChecker, SLEEP_TIMEOUT);
             }
         }
     };
