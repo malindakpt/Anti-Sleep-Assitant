@@ -20,9 +20,19 @@ import sleepavoid.mkpt.sleepavoid.ques.Question6;
 import sleepavoid.mkpt.sleepavoid.ques.Question7;
 import sleepavoid.mkpt.sleepavoid.ques.Question8;
 import sleepavoid.mkpt.sleepavoid.ques.Question9;
+import sleepavoid.mkpt.sleepavoid.ques.QuestionDB;
 import sleepavoid.mkpt.sleepavoid.ques.QuestionEntity;
 
 public class QuestionGenerator {
+    private String[] dbQuestions;
+    private QuestionGenerator(){}
+    private static QuestionGenerator instance;
+    public static QuestionGenerator getInstance(){
+        if(instance==null){
+          instance = new QuestionGenerator();
+        }
+        return instance;
+    }
     private Random random = new Random();
     private QuestionEntity[] questionEntities= new QuestionEntity[]{
             new Question1(),
@@ -46,6 +56,14 @@ public class QuestionGenerator {
 
     public QuestionEntity getRandomQuestion(){
         return questionEntities[random.nextInt(questionEntities.length)];
+    }
+
+    public QuestionEntity getDbQuestion(){
+        return new QuestionDB(this.dbQuestions[random.nextInt(dbQuestions.length)]);
+    }
+
+    public void setDbQuestions(String[] content){
+        this.dbQuestions = content;
     }
 
 }

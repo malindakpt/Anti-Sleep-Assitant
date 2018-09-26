@@ -30,8 +30,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     public static String LBL_DISABLED = "Assitant Disabled";
     public static String LBL_SLEEPING = "You were sleeping";
 
-    public static final int SLEEP_TIMEOUT = 40000;
-    public static int autoQuestionFreq = 10;
+    public static final int SLEEP_TIMEOUT = 13000;
+    public static int dbQuestionFreq = 3;
 
     private MediaPlayer mediaPlayer;
     public static MainActivity mainActivity;
