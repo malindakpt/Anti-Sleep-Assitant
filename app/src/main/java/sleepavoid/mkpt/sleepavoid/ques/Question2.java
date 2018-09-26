@@ -13,6 +13,6 @@ public class Question2 extends QuestionEntity{
                 n++;
             }
         }
-        return "Please tell me how many vowels contained in following letters. "+s+": Ok. there were "+n+" vowels.";
+        return "Please tell me, how many, vowels, contained, in following letters. "+s+": Ok. there were "+n+" vowels.";
     }
 }

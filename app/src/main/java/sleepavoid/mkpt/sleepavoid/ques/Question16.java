@@ -8,6 +8,6 @@ public class Question16 extends QuestionEntity{
         int remaining = getRandom15();
         int initial = remaining + getRandom15();
         int given = initial - remaining;
-        return "You had "+initial+" of "+items+". Then you gave "+given +" of them to your "+relation+". Now how many "+items +" remaining with you?: You have "+remaining+" "+items+ " with you.";
+        return "You had, "+initial+", "+items+". Then, you gave, "+given +", of them ,to your, "+relation+". Now, how many, "+items +", remaining with you?: You have "+remaining+" "+items+ " with you.";
     }
 }

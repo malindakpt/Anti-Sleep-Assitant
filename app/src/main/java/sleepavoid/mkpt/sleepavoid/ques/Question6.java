@@ -16,6 +16,6 @@ public class Question6 extends QuestionEntity{
                 min = n[i];
             }
         }
-        return "What is the minimum number from "+ n[0]+", "+n[1]+", "+n[2]+", "+n[3]+", "+n[4]+". : the Minimum number is, "+min+".";
+        return "What is the minimum number,from ,"+ n[0]+", "+n[1]+", "+n[2]+", "+n[3]+", "+n[4]+". : the Minimum number is, "+min+".";
     }
 }

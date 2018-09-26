@@ -16,6 +16,6 @@ public class Question5 extends QuestionEntity{
                 max = n[i];
             }
         }
-        return "What is the maximum number from "+ n[0]+", "+n[1]+", "+n[2]+", "+n[3]+", "+n[4]+". : the Maximum number is, "+max+".";
+        return "What is the maximum number, from ,"+ n[0]+", "+n[1]+", "+n[2]+", "+n[3]+", "+n[4]+". : the Maximum number is, "+max+".";
     }
 }
