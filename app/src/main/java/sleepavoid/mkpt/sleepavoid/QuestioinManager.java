@@ -93,10 +93,10 @@ public class QuestioinManager {
         int val2 = r.nextInt(50);
 
         if(val1%2==0){
-            question = "This is simple maths: "+val1+" plus "+ val2+ " what is the answer";
+            question = "This is simple maths: "+val1+" plus "+ val2+ ". what is the answer";
             autoAnswer ="Answer is "+ (val1+val2);
         } else {
-            question = "This is simple maths: "+val1+" minus "+ val2+ " what is the answer";
+            question = "This is simple maths: "+val1+" minus "+ val2+ ". what is the answer";
             autoAnswer ="Answer is "+ (val1-val2);
         }
         return question;

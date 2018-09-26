@@ -30,8 +30,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     public static String LBL_DISABLED = "Assitant Disabled";
     public static String LBL_SLEEPING = "You were sleeping";
 
-    public static final int SLEEP_TIMEOUT = 5000;
-    public static int autoQuestionFreq = 2;
+    public static final int SLEEP_TIMEOUT = 40000;
+    public static int autoQuestionFreq = 10;
 
     private MediaPlayer mediaPlayer;
     public static MainActivity mainActivity;
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 public void onStart(String utteranceId) {
                     questionInprogress = true;
                     setState(deviceStatus, UIStatus.PHONE_SPEAKING);
-                    Log.e("MainActivity", "Speech started");
+                    Log.i("MainActivity", "Speech started");
                 }
                 @Override
                 public void onDone(String utteranceId) {
@@ -90,15 +90,15 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         public void run() {
                             if(deviceStatus == DeviceStatus.RUNNING) {
                                 if (QuestioinManager.islastAskedQuestion) {
-                                    // Question asking completed
+                                    // Question1 asking completed
                                     setState(deviceStatus, UIStatus.LISTENING);
                                     recorderActivity.startListening();
-                                    Log.e("MainActivity", "speechCompleted. islastAskedQuestion true");
+                                    Log.i("MainActivity", "speechCompleted. islastAskedQuestion true");
                                 } else {
                                     // When answer is given by QM completed
                                     setState(deviceStatus, UIStatus.ACTIVE);
                                     questionInprogress = false;
-                                    Log.e("MainActivity", "speechCompleted. islastAskedQuestion false");
+                                    Log.i("MainActivity", "speechCompleted. islastAskedQuestion false");
                                 }
                             }
                         }
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         if(deviceStatus == DeviceStatus.RUNNING) {
             if (matches.size() > 0) {
                 speak(QuestioinManager.getAnswer());
-                Log.e("MainActivity", matches.get(0)+":  onlistningComplete. matches.size()>0 Answer given");
+                Log.i("MainActivity", matches.get(0)+":  onlistningComplete. matches.size()>0 Answer given");
             } else {
                 Log.e("MainActivity", "Sleep person detected by matches == 0");
                 onSleepPersonDetected();
@@ -191,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         btnMute.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
+                questionInprogress = false;
                 mediaPlayer.stop();
             }
         });
@@ -216,10 +217,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 if(mediaPlayer.isPlaying()){
                     mediaPlayer.stop();
                 }
-                btnStart.setText(LBL_ACTIVATE);
                 new Handler(getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
+                        btnStart.setText(LBL_ACTIVATE);
                         progressCircle.setVisibility(View.INVISIBLE);
                         progressLinear.setIndeterminate(true);
                     }
@@ -229,10 +230,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             case RUNNING:
                 switch (uiStatus){
                     case SLEEPING:
-                        btnStart.setText(LBL_SLEEPING);
                         new Handler(getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
+                                btnStart.setText(LBL_SLEEPING);
                                 progressCircle.setVisibility(View.VISIBLE);
                                 progressLinear.setVisibility(View.VISIBLE);
                                 progressLinear.setIndeterminate(true);
@@ -240,10 +241,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         });
                         break;
                     case LISTENING:
-                        btnStart.setText(LBL_SPEAK_TO_PHONE);
                         new Handler(getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
+                                btnStart.setText(LBL_SPEAK_TO_PHONE);
                                 progressCircle.setVisibility(View.INVISIBLE);
                                 progressLinear.setVisibility(View.VISIBLE);
                                 progressLinear.setIndeterminate(false);
@@ -251,20 +252,20 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         });
                         break;
                     case PHONE_SPEAKING:
-                        btnStart.setText(LBL_LISTEN);
                         new Handler(getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
+                                btnStart.setText(LBL_LISTEN);
                                 progressCircle.setVisibility(View.VISIBLE);
                                 progressLinear.setVisibility(View.INVISIBLE);
                             }
                         });
                         break;
                     default:
-                        btnStart.setText(LBL_DECTIVATE);
                         new Handler(getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
+                                btnStart.setText(LBL_DECTIVATE);
                                 progressCircle.setVisibility(View.VISIBLE);
                                 progressLinear.setVisibility(View.INVISIBLE);
                                 progressLinear.setIndeterminate(false);
@@ -277,8 +278,12 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     }
 
     public void speak(String str) {
-        Log.i(TAG, "speaking: " + str);
-        tts.speak(str, TextToSpeech.QUEUE_FLUSH, params);
+        if(!tts.isSpeaking()) {
+            Log.i(TAG, "speaking: " + str);
+            tts.speak(str, TextToSpeech.QUEUE_FLUSH, params);
+        } else {
+            Log.e(TAG, "TTS called while TTS is busy " + str);
+        }
     }
 
     @Override
