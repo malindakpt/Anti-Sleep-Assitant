@@ -52,7 +52,8 @@ public class QuestionGenerator {
             new Question15(),
             new Question16(),
             new Question17(),
-            new Question18()};
+         //   new Question18()
+    };
 
     public QuestionEntity getRandomQuestion(){
         return questionEntities[random.nextInt(questionEntities.length)];
